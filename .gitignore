@@ -1,0 +1,26 @@
+# Azurite local emulator
+__azurite_db_*
+__blobstorage__/
+__queuestorage__/
+
+# .NET build and user files
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Node.js
+node_modules/
+dist/
+
+# VSCode
+.vscode/
+
+# macOS
+.DS_Store
+
+# Editor
+*.swp
