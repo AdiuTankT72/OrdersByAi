@@ -9,7 +9,12 @@ export async function getUsers(): Promise<User[]> {
 }
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5142";
+// If VITE_API_URL is empty string, we're in Azure environment, use relative URL
+// If VITE_API_URL has a value, use that, otherwise fall back to localhost
+const API_URL =
+  import.meta.env.VITE_API_URL === ""
+    ? ""
+    : import.meta.env.VITE_API_URL || "http://localhost:5142";
 
 export const api = axios.create({ baseURL: API_URL });
 

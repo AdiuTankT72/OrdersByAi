@@ -22,7 +22,9 @@ export default function UserOrder() {
       setMsg("Zamówienie złożone");
       await load();
     } catch {
-      setMsg("Błąd składania zamówienia");
+      setMsg(
+        "Błąd składania zamówienia. Być może ktoś inny złożył zamówienie na ten produkt. Proszę odświeżyć stronę."
+      );
     }
   };
 
