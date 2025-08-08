@@ -8,6 +8,12 @@ export default function UserOrders() {
     load();
   }, []);
 
+  const statusNames = ["Oczekuje", "GotoweDoWysłania", "Wysłano"];
+  const getStatusName = (status: string | number) => {
+    if (typeof status === "number") return statusNames[status] ?? status;
+
+    return status;
+  };
   return (
     <div style={{ maxWidth: 900, margin: "20px auto" }}>
       <h2>Moje zamówienia</h2>
@@ -26,7 +32,7 @@ export default function UserOrders() {
               <td>
                 {o.items.map((i) => `${i.name} x ${i.quantity}`).join(", ")}
               </td>
-              <td>{o.status}</td>
+              <td>{getStatusName(o.status)}</td>
             </tr>
           ))}
         </tbody>

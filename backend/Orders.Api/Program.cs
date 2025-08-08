@@ -75,11 +75,18 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =
 
 var app = builder.Build();
 
+// Serve static files (frontend)
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// Fallback for React Router (serve index.html for non-API routes)
+app.MapFallbackToFile("/index.html");
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -139,6 +146,13 @@ app.MapGet("/api/users", [Authorize(Roles = "Admin")] async (IUserStore users) =
     return Results.Ok(list.Select(u => new { u.Id, u.Login }));
 });
 
+// Admin: delete order
+app.MapDelete("/api/orders/{id}", [Authorize(Roles = "Admin")] async (string id, OrderService orders) =>
+{
+    var ok = await orders.DeleteOrderAsync(id);
+    return ok ? Results.NoContent() : Results.NotFound();
+});
+
 app.Run();
 
 // Models and DTOs
@@ -168,7 +182,7 @@ record ProductDto
     public int Quantity { get; set; }
 }
 
-enum OrderStatus { ToDo, ToBeSent, Sent }
+enum OrderStatus { Oczekuje = 0, GotoweDoWysłania = 1, Wysłano = 2 }
 
 record OrderItem
 {
@@ -182,7 +196,7 @@ record Order
     public string Id { get; init; } = Guid.NewGuid().ToString("N");
     public string UserId { get; init; } = default!;
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
-    public OrderStatus Status { get; set; } = OrderStatus.ToDo;
+    public OrderStatus Status { get; set; } = OrderStatus.Oczekuje;
     public List<OrderItem> Items { get; init; } = new();
 }
 
@@ -395,6 +409,16 @@ class OrderService
     {
         _orders = orders;
         _products = products;
+    }
+
+    public async Task<bool> DeleteOrderAsync(string id)
+    {
+        var all = await _orders.GetAllAsync();
+        var countBefore = all.Count;
+        all = all.Where(o => o.Id != id).ToList();
+        if (all.Count == countBefore) return false;
+        await _orders.SaveAllAsync(all);
+        return true;
     }
 
     public async Task<Order?> PlaceOrderAsync(string userId, List<OrderItemRequest> items)

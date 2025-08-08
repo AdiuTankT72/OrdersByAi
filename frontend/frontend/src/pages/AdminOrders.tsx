@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   allOrders,
   updateOrderStatus,
+  deleteOrder,
   getUsers,
   type Order,
   type OrderStatus,
@@ -9,25 +10,39 @@ import {
 } from "../api";
 
 export default function AdminOrders() {
+  const handleDelete = async (id: string) => {
+    setLoadingId(id);
+    setError(null);
+    try {
+      await deleteOrder(id);
+      setOrders((prev) => prev.filter((o) => o.id !== id));
+    } catch (e: any) {
+      setError("Błąd usuwania zamówienia");
+    } finally {
+      setLoadingId(null);
+    }
+  };
   const [orders, setOrders] = useState<Order[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const statuses: OrderStatus[] = ["ToDo", "ToBeSent", "Sent"];
+  const statuses: OrderStatus[] = ["Oczekuje", "GotoweDoWysłania", "Wysłano"];
+  const statusLabels = ["Oczekuje", "Gotowe do wysłania", "Wysłano"];
 
   useEffect(() => {
     allOrders().then(setOrders);
     getUsers().then(setUsers);
   }, []);
 
-  const onChange = async (id: string, status: OrderStatus) => {
+  const onChange = async (id: string, statusIdx: string) => {
     setLoadingId(id);
     setError(null);
     try {
-      const idx = statuses.indexOf(status);
+      const idx = Number(statusIdx);
+      const statusValue: OrderStatus = statuses[idx];
       await updateOrderStatus(id, idx);
       setOrders((prev) =>
-        prev.map((o) => (o.id === id ? { ...o, status } : o))
+        prev.map((o) => (o.id === id ? { ...o, status: statusValue } : o))
       );
     } catch (e: any) {
       setError("Błąd zmiany statusu zamówienia");
@@ -59,21 +74,30 @@ export default function AdminOrders() {
               </td>
               <td>
                 <select
-                  value={o.status}
-                  disabled={loadingId === o.id}
-                  onChange={(e) =>
-                    onChange(o.id, e.target.value as OrderStatus)
+                  value={
+                    typeof o.status === "number"
+                      ? o.status
+                      : String(statuses.indexOf(o.status as OrderStatus))
                   }
+                  disabled={loadingId === o.id}
+                  onChange={(e) => onChange(o.id, e.target.value)}
                 >
-                  {statuses.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
+                  {statusLabels.map((label, idx) => (
+                    <option key={idx} value={idx}>
+                      {label}
                     </option>
                   ))}
                 </select>
                 {loadingId === o.id && (
                   <span style={{ marginLeft: 8 }}>⏳</span>
                 )}
+                <button
+                  style={{ marginLeft: 8 }}
+                  disabled={loadingId === o.id}
+                  onClick={() => handleDelete(o.id)}
+                >
+                  Usuń
+                </button>
               </td>
             </tr>
           ))}

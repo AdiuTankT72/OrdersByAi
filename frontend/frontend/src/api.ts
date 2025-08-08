@@ -1,3 +1,6 @@
+export async function deleteOrder(id: string) {
+  await api.delete(`/api/orders/${id}`);
+}
 export type User = { id: string; login: string };
 
 export async function getUsers(): Promise<User[]> {
@@ -20,7 +23,7 @@ api.interceptors.request.use((config) => {
 export type Role = "Admin" | "User";
 export type Product = { id: string; name: string; quantity: number };
 export type ProductDto = { id?: string; name: string; quantity: number };
-export type OrderStatus = "ToDo" | "ToBeSent" | "Sent";
+export type OrderStatus = "Oczekuje" | "GotoweDoWysłania" | "Wysłano";
 export type OrderItem = { productId: string; name: string; quantity: number };
 export type Order = {
   id: string;
