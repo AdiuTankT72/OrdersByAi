@@ -41,7 +41,7 @@ jobs:
           registryPassword: ${{ secrets.ORDERS_REGISTRY_PASSWORD }}
           containerAppName: orders
           resourceGroup: RG-ORDERS
-          targetPort: 443
+          targetPort: 8080
           ingress: external
           imageToBuild: default/[parameters('containerAppName')]:${{ github.sha }}
           _buildArgumentsKey_: |
