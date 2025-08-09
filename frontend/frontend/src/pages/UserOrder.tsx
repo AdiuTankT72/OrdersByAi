@@ -4,7 +4,10 @@ import { getProducts, placeOrder, type Product } from "../api";
 export default function UserOrder() {
   const [products, setProducts] = useState<Product[]>([]);
   const [selected, setSelected] = useState<Record<string, number>>({});
-  const [msg, setMsg] = useState<string | null>(null);
+  const [msg, setMsg] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   const load = async () => setProducts(await getProducts().catch(() => []));
   useEffect(() => {
@@ -16,22 +19,38 @@ export default function UserOrder() {
       .filter(([, q]) => q > 0)
       .map(([productId, quantity]) => ({ productId, quantity }));
     if (items.length === 0) return;
+    // Validate if the sum of all quantities is divisible by 6
+    const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+    if (totalQuantity % 6 !== 0) {
+      setMsg({
+        type: "error",
+        text: "Łączna ilość zamawianych produktów musi być wielokrotnością 6.",
+      });
+      return;
+    }
     try {
       await placeOrder(items);
       setSelected({});
-      setMsg("Zamówienie złożone");
+      setMsg({ type: "success", text: "Zamówienie złożone" });
       await load();
-    } catch {
-      setMsg(
-        "Błąd składania zamówienia. Być może ktoś inny złożył zamówienie na ten produkt. Proszę odświeżyć stronę."
-      );
+    } catch (err: any) {
+      // Try to extract backend error message if present
+      const backendMsg =
+        err?.response?.data?.message || err?.response?.data?.error || "";
+      if (backendMsg) {
+        setMsg({ type: "error", text: backendMsg });
+      } else {
+        setMsg({
+          type: "error",
+          text: "Błąd składania zamówienia. Być może ktoś inny złożył zamówienie na ten produkt. Proszę odświeżyć stronę.",
+        });
+      }
     }
   };
 
   return (
     <div style={{ maxWidth: 800, margin: "20px auto" }}>
       <h2>Złóż zamówienie</h2>
-      {msg && <div>{msg}</div>}
       <table width="100%">
         <thead>
           <tr>
@@ -66,6 +85,15 @@ export default function UserOrder() {
           ))}
         </tbody>
       </table>
+      {msg && (
+        <div
+          className={
+            msg.type === "success" ? "success-message" : "error-message"
+          }
+        >
+          {msg.text}
+        </div>
+      )}
       <button onClick={submit} style={{ marginTop: 12 }}>
         Zamów
       </button>

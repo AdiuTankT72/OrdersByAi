@@ -1,3 +1,5 @@
+using Orders.Api;
+
 class OrderService
 {
     private readonly IOrderStore _orders;
@@ -18,16 +20,26 @@ class OrderService
         return true;
     }
 
-    public async Task<Order?> PlaceOrderAsync(string userId, List<OrderItemRequest> items)
+    public async Task<Result<Order?>> PlaceOrderAsync(string userId, List<OrderItemRequest> items)
     {
-        if (items is null || items.Count == 0) return null;
+        if (items is null || items.Count == 0) return Result<Order?>.Failure("Brak pozycji zamówienia.");
         var products = await _products.GetAllAsync();
 
         // Validate stock
+        int sum = 0;
         foreach (var i in items)
         {
             var p = products.FirstOrDefault(p => p.Id == i.ProductId);
-            if (p is null || i.Quantity <= 0 || i.Quantity > p.Quantity) return null;
+            if (p is null || i.Quantity <= 0 || i.Quantity > p.Quantity)
+            {
+                return Result<Order?>.Failure("Nieprawidłowa ilość produktu " + p?.Name + ". Być może ktoś inny właśnie złożył zamówienie na ten produkt.");
+            }
+            sum += i.Quantity;
+        }
+
+        if (sum % 6 != 0)
+        {
+            return Result<Order?>.Failure("Zamówienie musi zawierać wielokrotność 6 produktów.");
         }
 
         // Subtract stock
@@ -51,7 +63,7 @@ class OrderService
         var all = await _orders.GetAllAsync();
         all.Add(order);
         await _orders.SaveAllAsync(all);
-        return order;
+        return Result<Order?>.Success(order);
     }
 
     public async Task<List<Order>> GetByUserAsync(string userId)

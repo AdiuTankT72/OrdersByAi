@@ -5,6 +5,7 @@ using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using Orders.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -118,8 +119,8 @@ app.MapDelete("/api/products/{id}", [Authorize(Roles = "Admin")] async (string i
 app.MapPost("/api/orders", [Authorize] async (CreateOrderRequest req, ClaimsPrincipal user, OrderService orders) =>
 {
     var userId = user.FindFirstValue(ClaimTypes.NameIdentifier)!;
-    var order = await orders.PlaceOrderAsync(userId, req.Items);
-    return order is null ? Results.BadRequest(new { message = "Brak towaru" }) : Results.Ok(order);
+    Result<Order?> order = await orders.PlaceOrderAsync(userId, req.Items);
+    return order.IsSuccess ? Results.Ok(order.Value) : Results.BadRequest(new { message = order.Error });
 });
 
 app.MapGet("/api/orders/me", [Authorize] async (ClaimsPrincipal user, OrderService orders) =>
