@@ -28,7 +28,7 @@ api.interceptors.request.use((config) => {
 export type Role = "Admin" | "User";
 export type Product = { id: string; name: string; quantity: number };
 export type ProductDto = { id?: string; name: string; quantity: number };
-export type OrderStatus = "Oczekuje" | "GotoweDoWysłania" | "Wysłano";
+export type OrderStatus = "Oczekuje" | "Gotowe do wysłania" | "Wysłano";
 export type OrderItem = { productId: string; name: string; quantity: number };
 export type Order = {
   id: string;

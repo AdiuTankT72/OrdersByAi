@@ -1,11 +1,11 @@
 using System.Security.Claims;
 using System.Text;
-using Azure;
 using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Orders.Api;
+using Orders.Api.Repositories.JsonBlob;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -102,7 +102,8 @@ app.MapPost("/api/auth/login", async (LoginRequest req, AuthService auth) =>
     return token is null ? Results.Unauthorized() : Results.Ok(new { token });
 });
 
-app.MapGet("/api/products", [Authorize] async (ProductService svc) => Results.Ok(await svc.GetAllAsync()));
+app.MapGet("/api/products", [Authorize] async (ProductService svc)
+=> Results.Ok(await svc.GetAllAsync()));
 app.MapPost("/api/products", [Authorize(Roles = "Admin")] async (ProductDto dto, ProductService svc) => Results.Ok(await svc.AddAsync(dto)));
 app.MapPut("/api/products/{id}", [Authorize(Roles = "Admin")] async (string id, ProductDto dto, ProductService svc) =>
 {
@@ -205,34 +206,10 @@ class UpdateStatusRequest
     public OrderStatus Status { get; set; }
 }
 
-// Storage abstractions
-interface IJsonBlobStore
-{
-    Task<IReadOnlyList<T>> LoadListAsync<T>(string container, string blobName);
-    Task SaveListAsync<T>(string container, string blobName, IReadOnlyList<T> list);
-}
-
 // Stores
 interface IUserStore
 {
     Task<UserAccount?> FindByLoginAsync(string login);
     Task EnsureSeedAsync();
     Task<List<UserAccount>> GetAllAsync();
-}
-
-interface IProductStore
-{
-    Task<List<Product>> GetAllAsync();
-    Task SaveAllAsync(List<Product> products);
-}
-
-class OrderStore : IOrderStore
-{
-    private readonly IJsonBlobStore _store;
-    private const string Container = "data";
-    private const string BlobName = "orders.json";
-    public OrderStore(IJsonBlobStore store) => _store = store;
-
-    public Task<List<Order>> GetAllAsync() => _store.LoadListAsync<Order>(Container, BlobName).ContinueWith(t => t.Result.ToList());
-    public Task SaveAllAsync(List<Order> orders) => _store.SaveListAsync(Container, BlobName, orders);
 }

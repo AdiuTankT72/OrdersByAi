@@ -1,5 +1,8 @@
+using Azure;
+using Orders.Api.Repositories.JsonBlob;
+
 interface IOrderStore
 {
-    Task<List<Order>> GetAllAsync();
-    Task SaveAllAsync(List<Order> orders);
+    Task<ListWithETag<Order>> GetAllAsync();
+    Task SaveAllAsync(List<Order> orders, ETag eTag);
 }

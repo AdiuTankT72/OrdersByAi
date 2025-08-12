@@ -1,3 +1,5 @@
+using Orders.Api.Repositories.JsonBlob;
+
 class UserStore : IUserStore
 {
     private readonly IJsonBlobStore _store;
@@ -8,12 +10,12 @@ class UserStore : IUserStore
 
     public async Task EnsureSeedAsync()
     {
-        var list = (await _store.LoadListAsync<UserAccount>(Container, BlobName)).ToList();
+        var list = (await _store.LoadListAsync<UserAccount>(Container, BlobName)).Items.ToList();
         if (list.Count == 0)
         {
             list.Add(new UserAccount { Login = "admin", PasswordHash = "admin", Role = Role.Admin });
             list.Add(new UserAccount { Login = "user", PasswordHash = "user", Role = Role.User });
-            await _store.SaveListAsync(Container, BlobName, list);
+            await _store.SaveListAsync(Container, BlobName, list, null);
         }
         _cache = list;
     }
@@ -22,7 +24,7 @@ class UserStore : IUserStore
     {
         if (_cache is null)
         {
-            _cache = (await _store.LoadListAsync<UserAccount>(Container, BlobName)).ToList();
+            _cache = (await _store.LoadListAsync<UserAccount>(Container, BlobName)).Items.ToList();
         }
         return _cache;
     }
