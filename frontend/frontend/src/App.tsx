@@ -15,8 +15,9 @@ function RequireAuth({ children }: { children: React.ReactElement }) {
 }
 
 function App() {
+  const token = useAuth((s) => s.token);
   return (
-    <BrowserRouter>
+    <BrowserRouter key={token || undefined}>
       <Header />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
@@ -74,7 +75,7 @@ function Header() {
         alignItems: "center",
       }}
     >
-      <Link to="/login">Logowanie</Link>
+      {!token && <Link to="/login">Logowanie</Link>}
       {token && (
         <>
           {role === "Admin" && (

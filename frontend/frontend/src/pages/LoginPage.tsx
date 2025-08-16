@@ -46,7 +46,6 @@ export default function LoginPage() {
         {err && <div style={{ color: "red" }}>{err}</div>}
         <button type="submit">Zaloguj</button>
       </form>
-      <p>Dane testowe: admin/admin lub user/user</p>
     </div>
   );
 }

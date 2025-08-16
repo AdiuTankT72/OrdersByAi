@@ -29,16 +29,41 @@ function decodeRole(token: string): "Admin" | "User" | null {
 
 const token = localStorage.getItem("token");
 const initialRole = token ? decodeRole(token) : null;
-export const useAuth = create<AuthState>((set) => ({
-  token,
-  role: initialRole,
-  login: null,
-  setAuth: ({ token, role, login }) => {
-    localStorage.setItem("token", token);
-    set({ token, role: role ?? decodeRole(token) ?? null, login });
-  },
-  logout: () => {
+function isTokenExpired(token: string): boolean {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1] ?? ""));
+    if (!payload.exp) return false;
+    const now = Math.floor(Date.now() / 1000);
+    return payload.exp < now;
+  } catch {
+    return true;
+  }
+}
+
+export const useAuth = create<AuthState>((set) => {
+  let validToken = token;
+  let validRole = initialRole;
+  if (token && isTokenExpired(token)) {
     localStorage.removeItem("token");
-    set({ token: null, role: null, login: null });
-  },
-}));
+    validToken = null;
+    validRole = null;
+  }
+  return {
+    token: validToken,
+    role: validRole,
+    login: null,
+    setAuth: ({ token, role, login }) => {
+      if (isTokenExpired(token)) {
+        localStorage.removeItem("token");
+        set({ token: null, role: null, login: null });
+        return;
+      }
+      localStorage.setItem("token", token);
+      set({ token, role: role ?? decodeRole(token) ?? null, login });
+    },
+    logout: () => {
+      localStorage.removeItem("token");
+      set({ token: null, role: null, login: null });
+    },
+  };
+});
