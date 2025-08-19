@@ -17,7 +17,7 @@ dist-ssr
 .env.azure
 !.vscode/extensions.json
 .idea
-.DS_Store
+.DS_StoreF
 *.suo
 *.ntvs*
 *.njsproj

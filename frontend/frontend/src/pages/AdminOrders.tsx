@@ -26,8 +26,8 @@ export default function AdminOrders() {
   const [users, setUsers] = useState<User[]>([]);
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const statuses: OrderStatus[] = ["Oczekuje", "Gotowe do wysłania", "Wysłano"];
-  const statusLabels = ["Oczekuje", "Gotowe do wysłania", "Wysłano"];
+  const statuses: OrderStatus[] = ["Oczekuje", "Przyjęte", "Wysłano"];
+  const statusLabels = ["Oczekuje", "Przyjęte", "Wysłano"];
 
   useEffect(() => {
     allOrders().then(setOrders);

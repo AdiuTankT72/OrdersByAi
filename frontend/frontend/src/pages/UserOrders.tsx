@@ -8,7 +8,7 @@ export default function UserOrders() {
     load();
   }, []);
 
-  const statusNames = ["Oczekuje", "Gotowe do wysłania", "Wysłano"];
+  const statusNames = ["Oczekuje", "Przyjęte", "Wysłano"];
   const getStatusName = (status: string | number) => {
     if (typeof status === "number") return statusNames[status] ?? status;
 

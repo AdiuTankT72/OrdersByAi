@@ -181,7 +181,7 @@ record ProductDto
     public int Quantity { get; set; }
 }
 
-enum OrderStatus { Oczekuje = 0, GotoweDoWysłania = 1, Wysłano = 2 }
+enum OrderStatus { Oczekuje = 0, Przyjęte = 1, Wysłano = 2 }
 
 record OrderItem
 {
