@@ -11,6 +11,10 @@ import {
 
 export default function AdminOrders() {
   const handleDelete = async (id: string) => {
+    const confirmed = window.confirm(
+      "Czy na pewno chcesz usunąć to zamówienie?"
+    );
+    if (!confirmed) return;
     setLoadingId(id);
     setError(null);
     try {

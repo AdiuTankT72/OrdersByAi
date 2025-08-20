@@ -5,7 +5,7 @@ import react from "@vitejs/plugin-react";
 export default defineConfig(({ mode }) => {
   let outDir = "dist";
   if (mode === "azure") {
-    outDir = "../../backend/Orders.Api/wwwroot";
+    outDir = "../backend/Orders.Api/wwwroot";
   }
   return {
     plugins: [react()],
