@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getProducts, placeOrder, type Product } from "../api";
 
 export default function UserOrder() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[] | undefined>(undefined);
   const [selected, setSelected] = useState<Record<string, number>>({});
   const [msg, setMsg] = useState<{
     type: "success" | "error";
@@ -48,8 +48,12 @@ export default function UserOrder() {
     }
   };
 
+  if (products === undefined) {
+    return <div className="message">⏳ Wczytywanie...</div>;
+  }
+
   return (
-    <div style={{ maxWidth: 800, margin: "20px auto" }}>
+    <div>
       <h2>Złóż zamówienie</h2>
       <table width="100%">
         <thead>

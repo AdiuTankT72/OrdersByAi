@@ -1,6 +1,6 @@
 import { type FormEvent, useState } from "react";
 import { login as apiLogin } from "../api";
-import { useAuth } from "../store";
+import { decodeRole, useAuth } from "../store";
 
 export default function LoginPage() {
   const [login, setLogin] = useState("");
@@ -13,17 +13,16 @@ export default function LoginPage() {
     setErr(null);
     try {
       const token = await apiLogin(login, password);
-      // For demo, derive role by login name (admin/user)
-      const role = login === "admin" ? "Admin" : "User";
-      setAuth({ token, role, login });
-      window.location.href = role === "Admin" ? "/admin/produkty" : "/zamow";
+      const role = decodeRole(token);
+      setAuth({ token, role: role || "User", login });
+      window.location.href = role === "Admin" ? "/admin/zamowienia" : "/zamow";
     } catch (e) {
       setErr("Błędny login lub hasło");
     }
   };
 
   return (
-    <div style={{ maxWidth: 420, margin: "40px auto" }}>
+    <div>
       <h2>Logowanie</h2>
       <form onSubmit={onSubmit}>
         <div style={{ marginBottom: 12 }}>

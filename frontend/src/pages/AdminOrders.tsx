@@ -19,22 +19,23 @@ export default function AdminOrders() {
     setError(null);
     try {
       await deleteOrder(id);
-      setOrders((prev) => prev.filter((o) => o.id !== id));
+      setOrders((prev) => prev!.filter((o) => o.id !== id));
     } catch (e: any) {
       setError("Błąd usuwania zamówienia");
     } finally {
       setLoadingId(null);
     }
   };
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<Order[] | undefined>();
   const [users, setUsers] = useState<User[]>([]);
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const statuses: OrderStatus[] = ["Oczekuje", "Przyjęte", "Wysłano"];
-  const statusLabels = ["Oczekuje", "Przyjęte", "Wysłano"];
 
   useEffect(() => {
-    allOrders().then(setOrders);
+    allOrders()
+      .then(setOrders)
+      .catch(() => setOrders([]));
     getUsers().then(setUsers);
   }, []);
 
@@ -46,7 +47,7 @@ export default function AdminOrders() {
       const statusValue: OrderStatus = statuses[idx];
       await updateOrderStatus(id, idx);
       setOrders((prev) =>
-        prev.map((o) => (o.id === id ? { ...o, status: statusValue } : o))
+        prev!.map((o) => (o.id === id ? { ...o, status: statusValue } : o))
       );
     } catch (e: any) {
       setError("Błąd zmiany statusu zamówienia");
@@ -55,8 +56,12 @@ export default function AdminOrders() {
     }
   };
 
+  if (orders === undefined) {
+    return <div className="message">⏳ Wczytywanie...</div>;
+  }
+
   return (
-    <div style={{ maxWidth: 900, margin: "20px auto" }}>
+    <div>
       <h2>Zamówienia (wszystkie)</h2>
       {error && <div style={{ color: "red" }}>{error}</div>}
       <table width="100%">
@@ -86,7 +91,7 @@ export default function AdminOrders() {
                   disabled={loadingId === o.id}
                   onChange={(e) => onChange(o.id, e.target.value)}
                 >
-                  {statusLabels.map((label, idx) => (
+                  {statuses.map((label, idx) => (
                     <option key={idx} value={idx}>
                       {label}
                     </option>

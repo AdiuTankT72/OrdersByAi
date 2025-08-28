@@ -6,13 +6,13 @@ type AuthState = {
   login: string | null;
   setAuth: (payload: {
     token: string;
-    role: "Admin" | "User";
+    role: "Admin" | "User" | null;
     login: string;
   }) => void;
   logout: () => void;
 };
 
-function decodeRole(token: string): "Admin" | "User" | null {
+export function decodeRole(token: string): "Admin" | "User" | null {
   try {
     const payload = JSON.parse(atob(token.split(".")[1] ?? ""));
     const roles: string[] = ([] as string[]).concat(

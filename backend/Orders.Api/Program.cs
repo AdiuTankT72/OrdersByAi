@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text;
+using Azure.Identity;
 using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -50,12 +51,13 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddSingleton(sp =>
 {
     var conn = configuration.GetValue<string>("Azure:BlobConnectionString");
-    if (string.IsNullOrWhiteSpace(conn))
+    var managedIdentityId = configuration.GetValue<string>("Azure:ManagedIdentityId");
+    var storageAccountName = configuration.GetValue<string>("Azure:StorageAccountName");
+    if (string.IsNullOrWhiteSpace(managedIdentityId))
     {
-        // Allow Azurite/local emulator by default
-        conn = "UseDevelopmentStorage=true";
+        return new BlobServiceClient(conn);
     }
-    return new BlobServiceClient(conn);
+    return new BlobServiceClient(new Uri($"https://{storageAccountName}.blob.core.windows.net"), new ManagedIdentityCredential(managedIdentityId));
 });
 
 builder.Services.AddSingleton<IJsonBlobStore, JsonBlobStore>();

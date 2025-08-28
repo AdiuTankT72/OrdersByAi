@@ -16,6 +16,16 @@ function RequireAuth({ children }: { children: React.ReactElement }) {
 
 function App() {
   const token = useAuth((s) => s.token);
+  const role = useAuth((s) => s.role);
+  React.useEffect(() => {
+    if (token && window.location.pathname === "/login") {
+      if (role === "Admin") {
+        window.location.replace("/admin/zamowienia");
+      } else if (role === "User") {
+        window.location.replace("/zamow");
+      }
+    }
+  }, [token, role]);
   return (
     <BrowserRouter key={token || undefined}>
       <Header />
