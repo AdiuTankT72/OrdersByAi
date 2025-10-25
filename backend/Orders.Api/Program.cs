@@ -154,6 +154,39 @@ app.MapDelete("/api/orders/{id}", [Authorize(Roles = "Admin")] async (string id,
     return ok ? Results.NoContent() : Results.NotFound();
 });
 
+
+// RSS endpoint for new orders (no auth)
+app.MapGet("/api/rss/orders", async (IUserStore users, OrderService orders) =>
+{
+    var allOrders = await orders.GetAllAsync();
+    var userDict = (await users.GetAllAsync()).ToDictionary(u => u.Id, u => u.Login);
+    var items = allOrders
+        .OrderByDescending(o => o.CreatedAt)
+        .Select(o => new
+        {
+            Login = userDict.TryGetValue(o.UserId, out var login) ? login : "unknown",
+            Date = o.CreatedAt,
+            o.Id
+        })
+        .ToList();
+
+    var sb = new System.Text.StringBuilder();
+    sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    sb.AppendLine("<rss xmlns:atom=\"http://www.w3.org/2005/Atom\" version=\"2.0\"><channel>");
+    sb.AppendLine("<title>Orders Feed</title>");
+    sb.AppendLine("<link>https://lody-zamowienia.ciachobezcukru.pl</link>");
+    sb.AppendLine("<description>New orders notification</description>");
+    foreach (var item in items)
+    {
+        sb.AppendLine($"<item><title>Zamówienie od: {item.Login}</title>" +
+        $"<pubDate>{item.Date:R}</pubDate>"
+        + $"<link>https://lody-zamowienia.ciachobezcukru.pl/admin/orders/{item.Id}</link>"
+        + "</item>");
+    }
+    sb.AppendLine("</channel></rss>");
+    return Results.Content(sb.ToString(), "application/rss+xml; charset=utf-8");
+});
+
 app.Run();
 
 // Models and DTOs
