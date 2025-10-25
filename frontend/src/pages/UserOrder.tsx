@@ -66,13 +66,16 @@ export default function UserOrder() {
         <tbody>
           {products.map((p) => (
             <tr key={p.id}>
-              <td>{p.name}</td>
-              <td>{p.quantity}</td>
+              <td className={p.quantity > 0 ? "available" : ""}>{p.name}</td>
+              <td className={p.quantity > 0 ? "available" : ""}>
+                {p.quantity}
+              </td>
               <td>
                 <input
                   type="number"
                   min={0}
                   max={p.quantity}
+                  disabled={p.quantity === 0}
                   value={selected[p.id] ?? 0}
                   onChange={(e) =>
                     setSelected((s) => ({

@@ -28,6 +28,7 @@ export default function AdminProducts() {
     await updateProduct(p.id, { name: p.name, quantity: p.quantity });
   };
   const remove = async (id: string) => {
+    if (!window.confirm("Czy na pewno chcesz usunąć ten produkt?")) return;
     await deleteProduct(id);
     setProducts((prev) => prev.filter((p) => p.id !== id));
   };
@@ -45,6 +46,7 @@ export default function AdminProducts() {
           placeholder="Ilość"
           type="number"
           value={qty}
+          min={0}
           onChange={(e) => setQty(parseInt(e.target.value || "0"))}
         />
         <button onClick={add}>Dodaj</button>
@@ -77,6 +79,7 @@ export default function AdminProducts() {
                 <input
                   type="number"
                   value={p.quantity}
+                  min={0}
                   onChange={(e) =>
                     setProducts((ps) =>
                       ps.map((x) =>

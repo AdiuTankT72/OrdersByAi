@@ -32,3 +32,7 @@
   font-weight: 500;
   box-shadow: 0 2px 8px rgba(56, 142, 60, 0.08);
 }
+
+.available {
+  font-weight: 600;
+}
