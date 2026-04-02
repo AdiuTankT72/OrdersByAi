@@ -1,4 +1,5 @@
 using Orders.Api.Repositories.JsonBlob;
+using Orders.Api.Models;
 
 class UserStore : IUserStore
 {

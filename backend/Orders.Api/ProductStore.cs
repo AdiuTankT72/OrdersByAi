@@ -1,4 +1,5 @@
 using Azure;
+using Orders.Api.Models;
 using Orders.Api.Repositories.JsonBlob;
 
 class ProductStore : IProductStore

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Orders.Api;
+using Orders.Api.Models;
+using Orders.Api.Requests;
 using Orders.Api.Repositories.JsonBlob;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,6 +66,7 @@ builder.Services.AddSingleton<IJsonBlobStore, JsonBlobStore>();
 builder.Services.AddSingleton<IUserStore, UserStore>();
 builder.Services.AddSingleton<IProductStore, ProductStore>();
 builder.Services.AddSingleton<IOrderStore, OrderStore>();
+builder.Services.AddSingleton<IDeletedOrderStore, DeletedOrderStore>();
 builder.Services.AddSingleton<AuthService>();
 builder.Services.AddSingleton<ProductService>();
 builder.Services.AddSingleton<OrderService>();
@@ -170,7 +173,7 @@ app.MapGet("/api/rss/orders", async (IUserStore users, OrderService orders) =>
         })
         .ToList();
 
-    var sb = new System.Text.StringBuilder();
+    var sb = new StringBuilder();
     sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
     sb.AppendLine("<rss xmlns:atom=\"http://www.w3.org/2005/Atom\" version=\"2.0\"><channel>");
     sb.AppendLine("<title>Orders Feed</title>");
@@ -190,56 +193,9 @@ app.MapGet("/api/rss/orders", async (IUserStore users, OrderService orders) =>
 app.Run();
 
 // Models and DTOs
-record LoginRequest(string Login, string Password);
-
 enum Role { Admin, User }
 
-record UserAccount
-{
-    public string Id { get; init; } = Guid.NewGuid().ToString("N");
-    public string Login { get; init; } = default!;
-    public string PasswordHash { get; init; } = default!; // demo only
-    public Role Role { get; init; }
-}
-
-record Product
-{
-    public string Id { get; init; } = Guid.NewGuid().ToString("N");
-    public string Name { get; set; } = string.Empty;
-    public int Quantity { get; set; }
-}
-
-record ProductDto
-{
-    public string? Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public int Quantity { get; set; }
-}
-
 enum OrderStatus { Oczekuje = 0, Przyjęte = 1, Wysłano = 2 }
-
-record OrderItem
-{
-    public string ProductId { get; init; } = default!;
-    public string Name { get; init; } = default!;
-    public int Quantity { get; init; }
-}
-
-record Order
-{
-    public string Id { get; init; } = Guid.NewGuid().ToString("N");
-    public string UserId { get; init; } = default!;
-    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
-    public OrderStatus Status { get; set; } = OrderStatus.Oczekuje;
-    public List<OrderItem> Items { get; init; } = new();
-}
-
-record CreateOrderRequest(List<OrderItemRequest> Items);
-record OrderItemRequest(string ProductId, int Quantity);
-class UpdateStatusRequest
-{
-    public OrderStatus Status { get; set; }
-}
 
 // Stores
 interface IUserStore

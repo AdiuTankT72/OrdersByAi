@@ -1,23 +1,29 @@
 using Azure;
 using Orders.Api;
+using Orders.Api.Models;
+using Orders.Api.Requests;
 using Orders.Api.Repositories.JsonBlob;
 
 class OrderService
 {
     private readonly IOrderStore _orders;
     private readonly IProductStore _products;
-    public OrderService(IOrderStore orders, IProductStore products)
+    private readonly IDeletedOrderStore _deletedOrders;
+    public OrderService(IOrderStore orders, IProductStore products, IDeletedOrderStore deletedOrders)
     {
         _orders = orders;
         _products = products;
+        _deletedOrders = deletedOrders;
     }
 
     public async Task<bool> DeleteOrderAsync(string id)
     {
         var all = await _orders.GetAllAsync();
         var countBefore = all.Items.Count;
+        var toDelete = all.Items.FirstOrDefault(o => o.Id == id);
+        if (toDelete is null) return false;
         var updatedList = all.Items.Where(o => o.Id != id).ToList();
-        if (updatedList.Count == countBefore) return false;
+        await _deletedOrders.AppendAsync(toDelete);
         await _orders.SaveAllAsync(updatedList, all.ETag);
         return true;
     }
