@@ -55,22 +55,38 @@ export default function UserOrder() {
   return (
     <div>
       <h2>Złóż zamówienie</h2>
-      <table width="100%">
+      <table width="100%" style={{ borderCollapse: "collapse" }}>
         <thead>
-          <tr>
-            <th>Produkt</th>
-            <th>Dostępna ilość</th>
-            <th>Ilość</th>
+          <tr style={{ borderBottom: "2px solid #ccc", background: "#f5f5f5" }}>
+            <th style={{ padding: "8px 12px", textAlign: "left" }}>Produkt</th>
+            <th style={{ padding: "8px 12px", textAlign: "left" }}>
+              Dostępna ilość
+            </th>
+            <th style={{ padding: "8px 12px", textAlign: "left" }}>Ilość</th>
           </tr>
         </thead>
         <tbody>
-          {products.map((p) => (
-            <tr key={p.id}>
-              <td className={p.quantity > 0 ? "available" : ""}>{p.name}</td>
-              <td className={p.quantity > 0 ? "available" : ""}>
+          {products.map((p, idx) => (
+            <tr
+              key={p.id}
+              style={{
+                borderBottom: "1px solid #e0e0e0",
+                background: idx % 2 === 0 ? "#fff" : "#fafafa",
+              }}
+            >
+              <td
+                className={p.quantity > 0 ? "available" : ""}
+                style={{ padding: "8px 12px", verticalAlign: "middle" }}
+              >
+                {p.name}
+              </td>
+              <td
+                className={p.quantity > 0 ? "available" : ""}
+                style={{ padding: "8px 12px", verticalAlign: "middle" }}
+              >
                 {p.quantity}
               </td>
-              <td>
+              <td style={{ padding: "8px 12px", verticalAlign: "middle" }}>
                 <input
                   type="number"
                   min={0}
@@ -82,7 +98,7 @@ export default function UserOrder() {
                       ...s,
                       [p.id]: Math.min(
                         p.quantity,
-                        Math.max(0, parseInt(e.target.value || "0"))
+                        Math.max(0, parseInt(e.target.value || "0")),
                       ),
                     }))
                   }

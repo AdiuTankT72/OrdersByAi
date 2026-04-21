@@ -51,31 +51,37 @@ export default function AdminProducts() {
         />
         <button onClick={add}>Dodaj</button>
       </div>
-      <table width="100%">
+      <table width="100%" style={{ borderCollapse: "collapse" }}>
         <thead>
-          <tr>
-            <th>Nazwa</th>
-            <th>Ilość</th>
-            <th>Akcje</th>
+          <tr style={{ borderBottom: "2px solid #ccc", background: "#f5f5f5" }}>
+            <th style={{ padding: "8px 12px", textAlign: "left" }}>Nazwa</th>
+            <th style={{ padding: "8px 12px", textAlign: "left" }}>Ilość</th>
+            <th style={{ padding: "8px 12px", textAlign: "left" }}>Akcje</th>
           </tr>
         </thead>
         <tbody>
-          {products.map((p) => (
-            <tr key={p.id}>
-              <td>
+          {products.map((p, idx) => (
+            <tr
+              key={p.id}
+              style={{
+                borderBottom: "1px solid #e0e0e0",
+                background: idx % 2 === 0 ? "#fff" : "#fafafa",
+              }}
+            >
+              <td style={{ padding: "8px 12px", verticalAlign: "middle" }}>
                 <input
                   value={p.name}
                   onChange={(e) =>
                     setProducts((ps) =>
                       ps.map((x) =>
-                        x.id === p.id ? { ...x, name: e.target.value } : x
-                      )
+                        x.id === p.id ? { ...x, name: e.target.value } : x,
+                      ),
                     )
                   }
                   onBlur={() => save(p)}
                 />
               </td>
-              <td>
+              <td style={{ padding: "8px 12px", verticalAlign: "middle" }}>
                 <input
                   type="number"
                   value={p.quantity}
@@ -85,15 +91,27 @@ export default function AdminProducts() {
                       ps.map((x) =>
                         x.id === p.id
                           ? { ...x, quantity: parseInt(e.target.value || "0") }
-                          : x
-                      )
+                          : x,
+                      ),
                     )
                   }
                   onBlur={() => save(p)}
                 />
               </td>
-              <td>
-                <button onClick={() => remove(p.id)}>Usuń</button>
+              <td style={{ padding: "8px 12px", verticalAlign: "middle" }}>
+                <button
+                  onClick={() => remove(p.id)}
+                  style={{
+                    background: "#e53935",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 4,
+                    padding: "4px 10px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Usuń
+                </button>
               </td>
             </tr>
           ))}
