@@ -76,15 +76,7 @@ function Header() {
   const role = useAuth((s) => s.role);
   const logout = useAuth((s) => s.logout);
   return (
-    <nav
-      style={{
-        display: "flex",
-        gap: 12,
-        padding: 12,
-        borderBottom: "1px solid #eee",
-        alignItems: "center",
-      }}
-    >
+    <nav className="nav-header">
       {!token && <Link to="/login">Logowanie</Link>}
       {token && (
         <>
@@ -96,7 +88,7 @@ function Header() {
           )}
           <Link to="/zamow">Złóż zamówienie</Link>
           <Link to="/moje-zamowienia">Moje zamówienia</Link>
-          <button style={{ marginLeft: "auto" }} onClick={logout}>
+          <button className="nav-logout" onClick={logout}>
             Wyloguj
           </button>
         </>

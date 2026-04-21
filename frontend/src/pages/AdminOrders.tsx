@@ -63,39 +63,26 @@ export default function AdminOrders() {
   return (
     <div>
       <h2>Zamówienia (wszystkie)</h2>
-      {error && <div style={{ color: "red" }}>{error}</div>}
-      <table width="100%" style={{ borderCollapse: "collapse" }}>
+      {error && <div className="error-message">{error}</div>}
+      <table className="data-table">
         <thead>
-          <tr style={{ borderBottom: "2px solid #ccc", background: "#f5f5f5" }}>
-            <th style={{ padding: "8px 12px", textAlign: "left" }}>Data</th>
-            <th style={{ padding: "8px 12px", textAlign: "left" }}>
-              Użytkownik
-            </th>
-            <th style={{ padding: "8px 12px", textAlign: "left" }}>Pozycje</th>
-            <th style={{ padding: "8px 12px", textAlign: "left" }}>Status</th>
+          <tr>
+            <th>Data</th>
+            <th>Użytkownik</th>
+            <th>Pozycje</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
-          {orders.map((o, idx) => (
-            <tr
-              key={o.id}
-              style={{
-                borderBottom: "1px solid #e0e0e0",
-                background: idx % 2 === 0 ? "#fff" : "#fafafa",
-              }}
-            >
-              <td style={{ padding: "8px 12px", verticalAlign: "center" }}>
-                {new Date(o.createdAt).toLocaleString()}
-              </td>
-              <td style={{ padding: "8px 12px", verticalAlign: "center" }}>
-                {users.find((u) => u.id === o.userId)?.login ?? o.userId}
-              </td>
-              <td style={{ padding: "8px 12px", verticalAlign: "center" }}>
+          {orders.map((o) => (
+            <tr key={o.id}>
+              <td>{new Date(o.createdAt).toLocaleString()}</td>
+              <td>{users.find((u) => u.id === o.userId)?.login ?? o.userId}</td>
+              <td>
                 {o.items.map((i) => `${i.name} x ${i.quantity}`).join(", ")}
               </td>
-              <td style={{ padding: "8px 12px", verticalAlign: "center" }}>
+              <td>
                 <select
-                  style={{ verticalAlign: "center" }}
                   value={
                     typeof o.status === "number"
                       ? o.status
@@ -111,18 +98,10 @@ export default function AdminOrders() {
                   ))}
                 </select>
                 {loadingId === o.id && (
-                  <span style={{ marginLeft: 8 }}>⏳</span>
+                  <span className="status-spinner">⏳</span>
                 )}
                 <button
-                  style={{
-                    marginLeft: 8,
-                    background: "#e53935",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: 4,
-                    padding: "4px 10px",
-                    cursor: "pointer",
-                  }}
+                  className="btn-danger btn-danger-inline"
                   disabled={loadingId === o.id}
                   onClick={() => handleDelete(o.id)}
                 >
