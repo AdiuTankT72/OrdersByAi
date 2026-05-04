@@ -24,6 +24,31 @@ class OrderService
         var updatedList = all.Items.Where(o => o.Id != id).ToList();
         await _deletedOrders.AppendAsync(toDelete);
         await _orders.SaveAllAsync(updatedList, all.ETag);
+
+        if (toDelete.Status != OrderStatus.Wysłano)
+        {
+            bool retry;
+            do
+            {
+                retry = false;
+                var products = await _products.GetAllAsync();
+                foreach (var item in toDelete.Items)
+                {
+                    var p = products.Items.FirstOrDefault(p => p.Id == item.ProductId);
+                    if (p is not null)
+                        p.Quantity += item.Quantity;
+                }
+                try
+                {
+                    await _products.SaveAllAsync(products.Items, products.ETag);
+                }
+                catch (Azure.RequestFailedException ex) when (ex.Status == 412)
+                {
+                    retry = true;
+                }
+            } while (retry);
+        }
+
         return true;
     }
 
