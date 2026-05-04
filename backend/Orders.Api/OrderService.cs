@@ -19,8 +19,7 @@ class OrderService
     public async Task<bool> DeleteOrderAsync(string id)
     {
         var all = await _orders.GetAllAsync();
-        var countBefore = all.Items.Count;
-        var toDelete = all.Items.FirstOrDefault(o => o.Id == id);
+        Order? toDelete = all.Items.FirstOrDefault(o => o.Id == id);
         if (toDelete is null) return false;
         var updatedList = all.Items.Where(o => o.Id != id).ToList();
         await _deletedOrders.AppendAsync(toDelete);
@@ -108,9 +107,9 @@ class OrderService
         return all.Items.Where(o => o.UserId == userId).OrderByDescending(o => o.CreatedAt).ToList();
     }
 
-    public async Task<List<Order>> GetAllAsync()
+    public async Task<IEnumerable<Order>> GetAllAsync()
     {
-        return (await _orders.GetAllAsync()).Items;
+        return (await _orders.GetAllAsync()).Items.OrderByDescending(o => o.CreatedAt);
     }
 
     public async Task<bool> UpdateStatusAsync(string id, OrderStatus status)

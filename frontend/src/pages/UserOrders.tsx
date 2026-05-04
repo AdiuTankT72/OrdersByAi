@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { myOrders, type Order } from "../api";
+import { myOrders, ORDER_STATUS_LABELS, type Order } from "../api";
 
 export default function UserOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -8,12 +8,6 @@ export default function UserOrders() {
     load();
   }, []);
 
-  const statusNames = ["Oczekuje", "Przyjęte", "Wysłano"];
-  const getStatusName = (status: string | number) => {
-    if (typeof status === "number") return statusNames[status] ?? status;
-
-    return status;
-  };
   return (
     <div className="page-container-wide">
       <h2>Moje zamówienia</h2>
@@ -28,11 +22,20 @@ export default function UserOrders() {
         <tbody>
           {orders.map((o) => (
             <tr key={o.id}>
-              <td>{new Date(o.createdAt).toLocaleString()}</td>
+              <td>
+                {new Date(o.createdAt).toLocaleString("pl-PL", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })}
+              </td>
               <td>
                 {o.items.map((i) => `${i.name} x ${i.quantity}`).join(", ")}
               </td>
-              <td>{getStatusName(o.status)}</td>
+              <td>{ORDER_STATUS_LABELS[o.status]}</td>
             </tr>
           ))}
         </tbody>

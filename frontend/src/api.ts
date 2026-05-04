@@ -28,7 +28,8 @@ api.interceptors.request.use((config) => {
 export type Role = "Admin" | "User";
 export type Product = { id: string; name: string; quantity: number };
 export type ProductDto = { id?: string; name: string; quantity: number };
-export type OrderStatus = "Oczekuje" | "Przyjęte" | "Wysłano";
+export type OrderStatus = 0 | 1 | 2;
+export const ORDER_STATUS_LABELS = ["Oczekuje", "Przyjęte", "Wysłano"] as const;
 export type OrderItem = { productId: string; name: string; quantity: number };
 export type Order = {
   id: string;
@@ -63,7 +64,7 @@ export async function deleteProduct(id: string) {
 }
 
 export async function placeOrder(
-  items: { productId: string; quantity: number }[]
+  items: { productId: string; quantity: number }[],
 ) {
   const { data } = await api.post<Order>("/api/orders", { items });
   return data;

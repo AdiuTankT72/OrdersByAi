@@ -4,12 +4,16 @@ import {
   updateOrderStatus,
   deleteOrder,
   getUsers,
+  ORDER_STATUS_LABELS,
   type Order,
   type OrderStatus,
   type User,
 } from "../api";
 
 export default function AdminOrders() {
+  const isPendingOrder = (status: OrderStatus) => status === 1;
+  const isWaitingOrder = (status: OrderStatus) => status === 0;
+
   const handleDelete = async (id: string) => {
     const confirmed = window.confirm(
       "Czy na pewno chcesz usunąć to zamówienie?",
@@ -30,7 +34,6 @@ export default function AdminOrders() {
   const [users, setUsers] = useState<User[]>([]);
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const statuses: OrderStatus[] = ["Oczekuje", "Przyjęte", "Wysłano"];
 
   useEffect(() => {
     allOrders()
@@ -43,11 +46,10 @@ export default function AdminOrders() {
     setLoadingId(id);
     setError(null);
     try {
-      const idx = Number(statusIdx);
-      const statusValue: OrderStatus = statuses[idx];
+      const idx = Number(statusIdx) as OrderStatus;
       await updateOrderStatus(id, idx);
       setOrders((prev) =>
-        prev!.map((o) => (o.id === id ? { ...o, status: statusValue } : o)),
+        prev!.map((o) => (o.id === id ? { ...o, status: idx } : o)),
       );
     } catch (e: any) {
       setError("Błąd zmiany statusu zamówienia");
@@ -75,23 +77,37 @@ export default function AdminOrders() {
         </thead>
         <tbody>
           {orders.map((o) => (
-            <tr key={o.id}>
-              <td>{new Date(o.createdAt).toLocaleString()}</td>
+            <tr
+              key={o.id}
+              className={
+                isPendingOrder(o.status)
+                  ? "order-row-pending"
+                  : isWaitingOrder(o.status)
+                    ? "order-row-waiting"
+                    : undefined
+              }
+            >
+              <td>
+                {new Date(o.createdAt).toLocaleString("pl-PL", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })}
+              </td>
               <td>{users.find((u) => u.id === o.userId)?.login ?? o.userId}</td>
               <td>
                 {o.items.map((i) => `${i.name} x ${i.quantity}`).join(", ")}
               </td>
               <td>
                 <select
-                  value={
-                    typeof o.status === "number"
-                      ? o.status
-                      : String(statuses.indexOf(o.status as OrderStatus))
-                  }
+                  value={o.status}
                   disabled={loadingId === o.id}
                   onChange={(e) => onChange(o.id, e.target.value)}
                 >
-                  {statuses.map((label, idx) => (
+                  {ORDER_STATUS_LABELS.map((label, idx) => (
                     <option key={idx} value={idx}>
                       {label}
                     </option>

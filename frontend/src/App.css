@@ -96,9 +96,27 @@
   background: #efefef;
 }
 
+.data-table tbody tr.order-row-pending {
+  background: #fff3cd;
+  box-shadow: inset 4px 0 0 #d97706;
+}
+
+.data-table tbody tr.order-row-pending td {
+  font-weight: 600;
+}
+
 .data-table td {
   padding: 8px 12px;
   vertical-align: middle;
+}
+
+.data-table tbody tr.order-row-waiting {
+  background: #ffb700;
+  box-shadow: inset 4px 0 0 #d97706;
+}
+
+.data-table tbody tr.order-row-waiting td {
+  font-weight: 600;
 }
 
 /* Buttons */
@@ -150,6 +168,16 @@
 
   .data-table tbody tr:nth-child(even) {
     background: #383838;
+  }
+
+  .data-table tbody tr.order-row-pending {
+    background: #392b11;
+    box-shadow: inset 4px 0 0 #f59e0b;
+  }
+
+  .data-table tbody tr.order-row-waiting {
+    background: #4a3717;
+    box-shadow: inset 4px 0 0 #f59e0b;
   }
 
   .data-table td {
